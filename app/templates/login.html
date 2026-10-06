@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>BancoInseguro - Login</title>
+  <style>
+    body { font-family: sans-serif; background:#0d1b2a; color:#e0e1dd; display:flex;
+           justify-content:center; align-items:center; height:100vh; margin:0; }
+    .card { background:#1b263b; padding:2rem 2.5rem; border-radius:10px; width:300px; }
+    h1 { font-size:1.3rem; margin-top:0; }
+    label { font-size:.85rem; }
+    input { width:100%; padding:.5rem; margin:.3rem 0 .8rem; border:none; border-radius:4px; box-sizing:border-box; }
+    button { width:100%; padding:.6rem; background:#e63946; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    .erro { color:#ffb3b3; font-size:.85rem; }
+    .aviso { font-size:.75rem; color:#a9b4c2; margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>&#128179; BancoInseguro</h1>
+    {% if erro %}<p class="erro">{{ erro }}</p>{% endif %}
+    <form method="POST" action="/login">
+      <label>Usuario</label>
+      <input name="usuario" value="maria" autocomplete="off">
+      <label>Senha</label>
+      <input name="senha" type="password" value="senha123">
+      <button type="submit">Entrar</button>
+    </form>
+    <p class="aviso">Lab controlado - conexao HTTP sem TLS. Nao use dados reais.</p>
+  </div>
+</body>
+</html>

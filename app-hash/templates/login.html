@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>BancoInseguro (Caso 2 - hash no cliente)</title>
+  <style>
+    body { font-family: sans-serif; background:#14202b; color:#e0e1dd; display:flex;
+           justify-content:center; align-items:center; height:100vh; margin:0; }
+    .card { background:#22333b; padding:2rem 2.5rem; border-radius:10px; width:340px; }
+    h1 { font-size:1.2rem; margin-top:0; }
+    label { font-size:.85rem; }
+    input { width:100%; padding:.5rem; margin:.3rem 0 .8rem; border:none; border-radius:4px; box-sizing:border-box; }
+    button { width:100%; padding:.6rem; background:#5e8b7e; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    .erro { color:#ffb3b3; font-size:.85rem; }
+    .aviso { font-size:.75rem; color:#f0c060; margin-top:1rem; }
+    .info { font-size:.72rem; color:#a9b4c2; margin-top:.8rem; }
+    code { color:#8ecae6; word-break:break-all; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>&#128274; BancoInseguro <small>(Caso 2)</small></h1>
+    {% if erro %}<p class="erro">{{ erro }}</p>{% endif %}
+    <form id="loginForm" method="POST" action="/login">
+      <label>Usuario</label>
+      <input name="usuario" id="usuario" value="maria" autocomplete="off">
+      <label>Senha</label>
+      <!-- sem atributo 'name': a senha em claro NUNCA e enviada -->
+      <input type="password" id="senha" value="senha123">
+      <!-- o que vai no POST e apenas o hash: -->
+      <input type="hidden" name="senha_hash" id="senha_hash">
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="aviso" class="aviso"></p>
+    <p class="info">A senha e derivada no navegador com <b>PBKDF2-HMAC-SHA256</b>
+       ({{ iteracoes }} iteracoes + salt) antes do envio. O POST segue em HTTP
+       puro, mas com o hash no lugar da senha.</p>
+    <p class="info" id="hashPreview"></p>
+  </div>
+
+  <script>
+    const ITER = {{ iteracoes }};
+    const form = document.getElementById('loginForm');
+
+    async function derivarPBKDF2(usuario, senha) {
+      const enc = new TextEncoder();
+      const km = await crypto.subtle.importKey(
+        'raw', enc.encode(senha), 'PBKDF2', false, ['deriveBits']);
+      const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: enc.encode('bancoinseguro:' + usuario),
+          iterations: ITER, hash: 'SHA-256' }, km, 256);
+      return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!(window.crypto && window.crypto.subtle)) {
+        document.getElementById('aviso').textContent =
+          'crypto.subtle indisponivel neste endereco. Acesse via http://localhost:8001/ (contexto seguro).';
+        return;
+      }
+      const usuario = document.getElementById('usuario').value;
+      const senha = document.getElementById('senha').value;
+      const hash = await derivarPBKDF2(usuario, senha);
+      document.getElementById('senha_hash').value = hash;
+      document.getElementById('hashPreview').innerHTML =
+        'Enviado no POST: <code>senha_hash=' + hash + '</code>';
+      form.submit();
+    });
+  </script>
+</body>
+</html>

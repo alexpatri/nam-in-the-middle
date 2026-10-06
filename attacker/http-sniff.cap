@@ -1,0 +1,12 @@
+# Caplet bettercap - captura passiva de HTTP em texto claro na rede do lab.
+#
+# Neste lab de UMA maquina o bettercap fareja a bridge do Docker (onde todo o
+# trafego entre a vitima e o servidor passa), lendo tudo em claro. Nao usamos
+# ARP spoofing aqui porque o Docker filtra o redirecionamento de camada 2 no
+# host (veja a nota no README).
+
+set net.sniff.local true
+set net.sniff.verbose true
+set net.sniff.filter tcp port 80
+
+net.sniff on

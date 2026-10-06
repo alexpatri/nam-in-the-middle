@@ -1,0 +1,39 @@
+# Lab de captura de credenciais em HTTP, tudo em UMA maquina.
+# Dois casos servidos so em HTTP (sem TLS), na mesma rede bridge (labnet):
+#   - server       (Caso 1): senha em TEXTO CLARO no POST.
+#   - server-hash  (Caso 2): senha derivada com PBKDF2 no navegador antes do POST.
+# A VITIMA e VOCE, no navegador do host. O ATACANTE (bettercap) roda via
+# ./attacker/run-attacker.sh, farejando a bridge e vendo o trafego em claro.
+#
+# Subir:  docker compose up -d --build
+services:
+  # ---- CASO 1: senha em texto claro -----------------------------------------
+  server:
+    build: ./app
+    container_name: lab-server
+    ports:
+      - "8000:80"          # navegador: http://172.30.0.10/  ou  http://localhost:8000/
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.10
+    restart: unless-stopped
+
+  # ---- CASO 2: senha com hash PBKDF2 no cliente -----------------------------
+  # Acesse SEMPRE por http://localhost:8001/  (contexto seguro exigido pelo
+  # crypto.subtle do navegador). O trafego mesmo assim e HTTP puro e capturavel.
+  server-hash:
+    build: ./app-hash
+    container_name: lab-server-hash
+    ports:
+      - "8001:80"
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.11
+    restart: unless-stopped
+
+networks:
+  labnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

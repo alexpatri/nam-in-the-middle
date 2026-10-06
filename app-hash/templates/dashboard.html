@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>BancoInseguro (Caso 2) - Conta</title>
+  <style>
+    body { font-family: sans-serif; background:#14202b; color:#e0e1dd; margin:0; padding:2rem; }
+    .card { background:#22333b; padding:1.5rem 2rem; border-radius:10px; max-width:520px; margin:auto; }
+    h1 { font-size:1.3rem; margin-top:0; }
+    .saldo { font-size:2rem; color:#8ecae6; margin:.5rem 0 1.5rem; }
+    a { color:#a9b4c2; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Ola, {{ usuario }} &#128075;</h1>
+    <div>Saldo disponivel</div>
+    <div class="saldo">R$ {{ '%.2f'|format(saldo) }}</div>
+    <p><a href="/logout">Sair</a></p>
+  </div>
+</body>
+</html>
